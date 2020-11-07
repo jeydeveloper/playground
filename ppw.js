@@ -6,8 +6,41 @@ const PASSWORD_SELECTOR = 'input[type="password"]';
 const SUBMIT_SELECTOR = '.btn-signup';
 const LOGIN_URL = 'https://www.payperwatch.com/login';
 
-// if (process.argv[2] !== undefined) {
+const WAITING_TIME = 2000;
+
 (() => {
+  const clickImage = async (page) => {
+    const listMusicPlay = await page.$$("div.musicplay");
+    for (let indexMusicPlay = 0; indexMusicPlay < 3; indexMusicPlay++) {
+      if (listMusicPlay[indexMusicPlay]) {
+        console.log("Click image", indexMusicPlay);
+        await Promise.all([
+          await page.evaluate(element => {
+            element.click();
+          }, listMusicPlay[indexMusicPlay]),
+          await page.waitForSelector('#musiclose', {
+            visible: true,
+          }),
+          await page.waitFor(WAITING_TIME)
+        ]);
+        const listMusicClose = await page.$$("span#musiclose");
+        const indexMusicClose = 0;
+        if (listMusicClose[indexMusicClose]) {
+          console.log("Click button close", indexMusicPlay);
+          await Promise.all([
+            await page.evaluate(element => {
+              element.click();
+            }, listMusicClose[indexMusicClose]),
+            await page.waitFor(WAITING_TIME)
+          ]);
+          console.log('Done click button close', indexMusicPlay)
+        }
+        console.log('Done click image', indexMusicPlay)
+        await page.waitFor(WAITING_TIME)
+      }
+    }
+  };
+
   puppeteer.launch({ headless: true })
     .then(async (browser) => {
       let page = await browser.newPage()
@@ -38,88 +71,12 @@ const LOGIN_URL = 'https://www.payperwatch.com/login';
                 await page.waitForSelector('.musicplay', {
                   visible: true,
                 }),
-                await page.waitFor(2000)
+                await page.waitFor(WAITING_TIME)
               ]);
-              const links2 = await page.$$("div.musicplay");
-              let index2 = 1;
-              if (links2[index2]) {
-                console.log("Clicking Image", index2);
-                await Promise.all([
-                  await page.evaluate(element => {
-                    element.click();
-                  }, links2[index2]),
-                  await page.waitForSelector('#musiclose', {
-                    visible: true,
-                  }),
-                  await page.waitFor(2000)
-                ]);
-                const links3 = await page.$$("span#musiclose");
-                const index3 = 0;
-                if (links3[index3]) {
-                  console.log("Clicking Button Close", index3);
-                  await Promise.all([
-                    await page.evaluate(element => {
-                      element.click();
-                    }, links3[index3]),
-                    await page.waitFor(2000)
-                  ]);
-                  console.log('test button close')
-                }
-                console.log('test click image 1')
-              }
-              index2++;
-              await page.waitFor(2000)
-              if (links2[index2]) {
-                console.log("Clicking Image", index2);
-                await Promise.all([
-                  await page.evaluate(element => {
-                    element.click();
-                  }, links2[index2]),
-                  await page.waitForSelector('#musiclose', {
-                    visible: true,
-                  }),
-                  await page.waitFor(2000)
-                ]);
-                const links3 = await page.$$("span#musiclose");
-                const index3 = 0;
-                if (links3[index3]) {
-                  console.log("Clicking Button Close", index3);
-                  await Promise.all([
-                    await page.evaluate(element => {
-                      element.click();
-                    }, links3[index3]),
-                    await page.waitFor(2000)
-                  ]);
-                  console.log('test button close')
-                }
-                console.log('test click image 2')
-              }
-              index2++;
-              await page.waitFor(2000)
-              if (links2[index2]) {
-                console.log("Clicking Image", index2);
-                await Promise.all([
-                  await page.evaluate(element => {
-                    element.click();
-                  }, links2[index2]),
-                  await page.waitForSelector('#musiclose', {
-                    visible: true,
-                  }),
-                  await page.waitFor(2000)
-                ]);
-                const links3 = await page.$$("span#musiclose");
-                const index3 = 0;
-                if (links3[index3]) {
-                  console.log("Clicking Button Close", index3);
-                  await Promise.all([
-                    await page.evaluate(element => {
-                      element.click();
-                    }, links3[index3]),
-                    await page.waitFor(2000)
-                  ]);
-                  console.log('test button close')
-                }
-                console.log('test click image 3')
+              try {
+                await clickImage(page);
+              } catch (err) {
+                console.log(err)
               }
               console.log('test done')
             }
@@ -127,10 +84,10 @@ const LOGIN_URL = 'https://www.payperwatch.com/login';
           } else {
             console.log("Unable to fetch results. Please try again!")
           }
+          browser.close()
         }).catch(err => console.log(err))
     })
     .catch((err) => {
       console.log(" CAUGHT WITH AN ERROR ", err);
     })
 })()
-// }
